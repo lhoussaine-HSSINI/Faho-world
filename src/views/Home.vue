@@ -28,7 +28,7 @@
       <div class="d-flex flex-column justify-content-center p-5 my-5">
         <h2>Thinking about becoming one of our partners? </h2>
         <div class="col d-flex justify-content-center align-items-center">
-          <router-link to="/" class=" btn-dark btn rounded-pill d-flex justify-content-center align-items-center" replace>
+          <router-link to="/PartnerR" class=" btn-dark btn rounded-pill d-flex justify-content-center align-items-center" replace>
             <span class="mx-1">Sign up</span>
             <FAIHoussain :icon="['fas' ,'arrow-right']" class="icon alt" />
           </router-link>
@@ -51,7 +51,7 @@ export default {
     slider_home,
     Featured_Stores_slider,
     AppFooter
-  },
+  }
 }
 </script>
 

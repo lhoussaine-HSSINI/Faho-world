@@ -18,9 +18,9 @@
     <SwiperSlide v-for="image in Featured_Stores" :key="image.id">
       <div class="rounded-1 div_img d-flex justify-content-center align-items-center" >
         <!--            <img :src="image.imageUrl" width="1024" height="1024" alt="Puppy with balloons">-->
-        <i class="i_content_img " :style="{'background-image': 'url(' + image.imageUrl + ')'}"></i>
+        <i class="i_content_img " :style="{'background-image': 'url(/images/store/' + image.Store_Image + ')'}"></i>
         <div class="show_shop d-flex justify-content-center align-items-center">
-          <strong><a :href="image.lien_store">show shop</a></strong>
+          <strong><a :href="image.Store_Url">show shop</a></strong>
         </div>
       </div>
     </SwiperSlide>
@@ -35,6 +35,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import SwiperCore, { EffectCoverflow, Pagination } from 'swiper';
 import {Swiper, SwiperSlide} from 'swiper/vue';
+import axios from "axios";
 
 // init Swiper:
 SwiperCore.use([EffectCoverflow, Pagination]);
@@ -48,10 +49,10 @@ export default {
           al3ard:10 ,logo_store:require("../assets/images/styli_logo.jpg"), lien_store:"https://bit.ly/3pRP1eT"},
         {id:2,name:"SHEIN",type_store:"Apparel",imageUrl:require("../assets/images/SHEIN.jpg"),
           al3ard:25 ,logo_store:require("../assets/images/SHEIN_logo.png"), lien_store:"https://bit.ly/3oBSXQA"},
-        {id:3,name:"Namshi",type_store:"Apparel",imageUrl:require("../assets/images/Namshi_logo.jpg"),
-          al3ard:15 ,logo_store:require("../assets/images/Namshi.png"), lien_store:"https://bit.ly/3oBzGyD"},
-        {id:4,name:"Hibobi",type_store:"Baby & Child",imageUrl:require("../assets/images/Hibobi_logo.jpg"),
-          al3ard:30 ,logo_store:require("../assets/images/Hibobi.jpg"), lien_store:"https://hibobi.app.link/pCXzCMvB2nb"},
+        {id:3,name:"Namshi",type_store:"Apparel",imageUrl:require("../assets/images/Namshi.jpg"),
+          al3ard:15 ,logo_store:require("../assets/images/Namshi_logo.png"), lien_store:"https://bit.ly/3oBzGyD"},
+        {id:4,name:"Hibobi",type_store:"Baby & Child",imageUrl:require("../assets/images/Hibobi.jpg"),
+          al3ard:30 ,logo_store:require("../assets/images/Hibobi_logo.jpg"), lien_store:"https://hibobi.app.link/pCXzCMvB2nb"},
       ],
     }
   },
@@ -60,6 +61,21 @@ export default {
       modules: [EffectCoverflow, Pagination],
     };
   },
+  mounted() {
+    this.getRvData();
+  },
+  methods: {
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-Store`);
+      const resData=res.data;
+      if (res.status == 200){
+        if (!resData.error){
+          this.Featured_Stores= resData.table_store.filter((el)=> el.id%2==1);
+        }
+      }
+    },
+  }
 }
 </script>
 

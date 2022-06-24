@@ -24,6 +24,14 @@
       </span>
     </div>
     <div class="form-group mt-4">
+      <label for="store_name">Store Name *</label>
+      <input type="text" class="form-control" id="store_name" aria-describedby="lastnameHelp"
+             placeholder="Enter Last Name" v-model="store_name">
+      <span class="error-feedback  text-danger" v-if="v$.store_name.$error">
+                     {{v$.store_name.$errors[0].$message}}
+      </span>
+    </div>
+    <div class="form-group mt-4">
       <label for="store_url">Store URL *</label>
       <input type="url" class="form-control " id="store_url" aria-describedby="Store urlHelp"
              placeholder="Enter Store url" v-model="store_url">
@@ -62,14 +70,9 @@
     <div class="form-group mt-4">
       <label for="category">Category *</label>
       <select class="form-control  form-control-sm" v-model="category" id="category" >
-        <option value="Accessories">Accessories</option>
-        <option value="Auto">Auto</option>
+        <option value="Apparel">Apparel</option>
         <option value="Baby & Child">Baby & Child</option>
-        <option value="Beauty & Health">Beauty & Health</option>
-        <option value="Books">Books</option>
-        <option value="Fashion">Fashion</option>
-        <option value="Home">Home</option>
-        <option value="Travel">Travel</option>
+        <option value="Home & Kitchen">Home & Kitchen</option>
       </select>
       <span class="error-feedback  text-danger" v-if="v$.category.$error">
                      {{v$.category.$errors[0].$message}}
@@ -90,6 +93,20 @@
       </span>
 
     </div>
+    <div class="form-group mt-3">
+      <label for="store_image">Store Image *</label>
+      <input  type="file" id="store_image" ref="file_image" accept="image/png,image/jpg,image/jpeg" v-on:change="onChangeFileUploadimage()" class="form-control">
+      <span class="error-feedback  text-danger" v-if="v$.store_image.$error">
+                     {{v$.store_image.$errors[0].$message}}
+                </span>
+    </div>
+    <div class="form-group mt-3">
+      <label for="store_logo">Store Logo *</label>
+      <input  type="file" id="store_logo" ref="file_logo" accept="image/png,image/jpg,image/jpeg" v-on:change="onChangeFileUploadlogo()" class="form-control">
+      <span class="error-feedback  text-danger" v-if="v$.store_logo.$error">
+                     {{v$.store_logo.$errors[0].$message}}
+                </span>
+    </div>
     <button type="submit" class="btn btn-dark mt-4" >Register</button>
   </form>
 </div>
@@ -98,6 +115,7 @@
 <script>
 import useVuelidate from "@vuelidate/core"
 import { required, minLength , maxLength, email, url} from "@vuelidate/validators"
+import axios from "axios";
 
 export default {
   name: "partner_registration_components",
@@ -107,6 +125,9 @@ export default {
       first_name:null,
       last_name:null,
       store_url:null,
+      store_name:null,
+      store_image:null,
+      store_logo:null,
       email:null,
       tel:null,
       country:null,
@@ -123,19 +144,58 @@ export default {
       country:{required},
       category:{required},
       annual_Sales:{required},
+      store_name:{required},
+      store_image:{required},
+      store_logo:{required},
     },
   methods: {
-    onRegister(){
-        this.v$.$validate();
-        if(!this.v$.$error){
-          console.log('success');
-          console.log(this.v$.$error);
-        }else{
-          console.log('error');
-          console.log(this.v$.$error);
+    async onRegister() {
+      this.v$.$validate();
+      if (!this.v$.$error) {
+        let formData = this.toFormData({Partner_first_name:this.first_name,Partner_last_name:this.last_name,
+          store_url:this.store_url,Partner_email:this.email,Partner_tel:this.tel,Partner_country:this.country,
+          store_category:this.category,store_annual_Sales:this.annual_Sales,store_name:this.store_name,
+          store_file_image:this.store_image,store_file_logo:this.store_logo});
+        let res= await axios.post(`http://localhost/faho_world/Partner`,formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+        const resData=res.data;
+        if (res.status === 200)
+        {
+          if (!resData.error)
+          {
+            if (resData.parner_daz) {
+              console.log('parner_daz')
+              this.v$.$reset();
+              this.$router.push({name: 'home'});
+            }
+          }
         }
-
+      } else {
+        console.log('lkhata2');
+        console.log(this.v$.$error);
+      }
+    },
+    onChangeFileUploadimage() {
+      this.store_image = this.$refs.file_image.files[0];
+      console.log(this.store_image);
+    },
+    onChangeFileUploadlogo() {
+      this.store_logo = this.$refs.file_logo.files[0];
+      console.log(this.store_logo);
+    },
+    // end product function
+    toFormData(obj){
+      var fd=new FormData();
+      for (var i in obj) {
+        fd.append(i, obj[i]);
+      }
+      return fd;
     }
+    ,
   }
 }
 

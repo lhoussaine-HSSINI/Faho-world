@@ -14,23 +14,25 @@
       :pagination="false"
       :modules="modules"
       class="mySwiper parallax-slider">
-    <SwiperSlide v-for="image in imagess" :key="image.id">
+    <SwiperSlide v-for="image in stores" :key="image.id">
           <div class="rounded-1 div_img d-flex justify-content-center align-items-center" >
-            <i class="i_content_img " :style="{'background-image': 'url(' + image.imageUrl + ')'}"></i>
+            <i class="i_content_img " :style="{'background-image': 'url(/images/store/'+ image.Store_Image +')'}"></i>
             <div class="show_shop d-flex justify-content-center align-items-center">
-              <strong><a :href="image.lien_store">show shop</a></strong>
+              <strong><a :href="image.Store_Url">show shop</a></strong>
             </div>
           </div>
           <div class="after_div_img d-flex justify-content-between align-items-center py-3">
               <div class="d-flex  align-items-center">
-                <div class="logo_store"><img :src="image.logo_store" width="20" height="20" alt="Puppy with balloons"></div>
+                <div class="logo_store"><img :src="'/images/store/'+image.Store_Logo" width="20" height="20" alt="Puppy with balloons"></div>
                 <div class="d-flex flex-column align-items-start">
-                  <i  class="i_store_tojar">{{image.name}}</i>
-                  <i  class="i_store_tojar_type">{{image.type_store}}</i>
+                  <i  class="i_store_tojar">{{image.Store_Name}}</i>
+                  <i  class="i_store_tojar_type">{{image.Store_Category}}</i>
+
+
                 </div>
               </div>
               <div class="d-flex  align-items-center">
-                <div><i class="i_store_tojar">Extra {{ image.al3ard }}% Off</i></div>
+                <div><i class="i_store_tojar">Extra 10% Off</i></div>
               </div>
           </div>
     </SwiperSlide>
@@ -45,6 +47,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import SwiperCore, { EffectCoverflow, Pagination } from 'swiper';
 import {Swiper, SwiperSlide} from 'swiper/vue';
+import axios from "axios";
 
 // init Swiper:
 SwiperCore.use([EffectCoverflow, Pagination]);
@@ -54,31 +57,30 @@ export default {
   data() {
     return {
       parallaxSwiperWith:0,
-      images:[
-        {id:1,name:"Alsaif Gallery",type_store:"Home & Kitchen",imageUrl:require("../assets/images/alsayf.png"),
-          al3ard:20 ,logo_store:require("../assets/images/alsyf_logo.png"), lien_store:"https://bit.ly/3CGe1ep"},
-        {id:2,name:"Styli",type_store:"Apparel",imageUrl:require("../assets/images/styli.jpg"),
-          al3ard:10 ,logo_store:require("../assets/images/styli_logo.jpg"), lien_store:"https://bit.ly/3pRP1eT"},
-        {id:3,name:"SHEIN",type_store:"Apparel",imageUrl:require("../assets/images/SHEIN.jpg"),
-          al3ard:25 ,logo_store:require("../assets/images/SHEIN_logo.png"), lien_store:"https://bit.ly/3oBSXQA"},
-        {id:4,name:"Namshi",type_store:"Apparel",imageUrl:require("../assets/images/Namshi_logo.jpg"),
-          al3ard:15 ,logo_store:require("../assets/images/Namshi.png"), lien_store:"https://bit.ly/3oBzGyD"},
-        {id:5,name:"Hibobi",type_store:"Baby & Child",imageUrl:require("../assets/images/Hibobi_logo.jpg"),
-          al3ard:30 ,logo_store:require("../assets/images/Hibobi.jpg"), lien_store:"https://hibobi.app.link/pCXzCMvB2nb"},
-        {id:6,name:"PatPat",type_store:"Baby & Child",imageUrl:require("../assets/images/PatPat_logo.jpg"),
-          al3ard:50 ,logo_store:require("../assets/images/PatPat.png"), lien_store:"https://bit.ly/37Da9zC"},],
-    }
-  },
-  computed: {
-    imagess: function () {
-      return this.images.filter((ele)=> ele.al3ard>0);
+      stores:[],
     }
   },
   setup() {
     return {
       modules: [EffectCoverflow, Pagination],
     };
+
   },
+  mounted() {
+    this.getRvData();
+  },
+  methods: {
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-Store`);
+      const resData=res.data;
+      if (res.status == 200){
+        if (!resData.error){
+          this.stores= resData.table_store.filter((el)=> el.id>4);
+        }
+      }
+    },
+  }
 }
 </script>
 

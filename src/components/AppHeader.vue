@@ -6,14 +6,18 @@
       <div class="d-flex align-items-center justify-content-between">
         <router-link class=" mx-2 mx-sm-3" to="/">Home</router-link>
         <router-link class=" mx-2 mx-sm-3" to="/shop" replace>Shop</router-link>
-        <router-link class=" mx-2 mx-sm-3" to="/business" replace>business</router-link>
+        <router-link v-if="!user_connecter && !user_login" class=" mx-2 mx-sm-3" to="/business" replace>business</router-link>
+        <router-link v-if="user_connecter && user_login && type_user===0 " class=" mx-2 mx-sm-3" to="/HomeUser" replace>
+          Dashboard</router-link>
+        <router-link v-if="user_connecter && user_login && type_user===1 " class=" mx-2 mx-sm-3" to="/HomeAdmin" replace>Dashboard</router-link>
 <!--        <div class="col-2">-->
 <!--          <button class="btn-dark btn rounded-pill">Login</button>-->
 <!--        </div>-->
-        <router-link class="mx-2 mx-sm-3 btn-dark btn rounded-pill" to="/login" replace>Login</router-link>
+        <router-link v-if="!user_connecter && !user_login" class="mx-2 mx-sm-3 btn-dark btn rounded-pill" to="/login" replace>Login</router-link>
+        <router-link v-if="user_connecter && user_login" class="mx-2 mx-sm-3 btn-dark btn rounded-pill" to="/" @click="logout()" replace>Logout</router-link>
         <div class="mx-2 mx-sm-3">
         <router-link :to="{ name: 'cartpy', path:'/cartpy'}" rel="nofollow" class="cart_py" replace>
-          {{q}}
+          {{mystore}}
         </router-link>
         </div>
       </div>
@@ -45,7 +49,6 @@ import Partner_registration from "@/components/partner_registration_components";
 import User_registration from "@/components/User_registration_components"
 export default {
   name: `AppHeader`,
-  props:['q'],
   components: {
     User_registration,
     Partner_registration,
@@ -56,9 +59,35 @@ export default {
   created(){
     console.log(this.$route.path);
     console.log(this.$route.name);
-    // if(this.$route.path!='Home'){
-    //   this.$router.push({path:'/'});
-    // }
+  },
+  mounted(){
+        if (!JSON.parse(localStorage.getItem('mystore'))){
+          localStorage.setItem("mystore", JSON.stringify([]))
+          console.log('yalah tkriyat')
+        }
+        this.mystore=JSON.parse(localStorage.getItem('mystore')).length;
+        this.user_connecter=JSON.parse(localStorage.getItem('user_connecter'));
+        this.user_login=JSON.parse(localStorage.getItem("user_login"));
+        this.type_user=JSON.parse(localStorage.getItem("type_user"));
+  }
+  ,
+  methods: {
+    logout(){
+      localStorage.setItem("user_connecter", JSON.stringify(false));
+      localStorage.setItem("user_login", JSON.stringify(false));
+      localStorage.setItem("type_user", JSON.stringify(9));
+      console.log(JSON.parse(localStorage.getItem('user_connecter')));
+      console.log(JSON.parse(localStorage.getItem("user_login")));
+      this.$router.push({path:'/'});
+    }
+  },
+  data(){
+    return {
+      user_connecter:false,
+      user_login:false,
+      type_user:null,
+      mystore:null,
+    }
   }
 }
 </script>

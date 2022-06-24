@@ -1,26 +1,24 @@
 <template>
-  <AppHeader :q="quantity"></AppHeader>
+  <AppHeader></AppHeader>
 <!--{{$route.params.id}}-->
 <!--  {{image[0]}}-->
   <main>
     <section class="py-5 p-2 px-sm-0 mx-0 mx-sm-4 d-flex justify-content-center align-items-center bg-white">
-      <div class="row" v-for="image in product" :key="image.id">
+      <div class="row" v-for="image in product_shop" :key="image.Product_id">
           <div class="col-6">
-            <img :src="image.imageUrl_product" class="card-img-top" alt="image product">
+            <img :src="'/images/product/'+image.Product_Image" class="card-img-top" alt="image product">
           </div>
           <div class="col-6 d-flex flex-column align-items-start">
-            <p class="name_product h1">{{image.name}}</p>
+            <p class="name_product h1">{{image.Product_Name}}</p>
             <div class="before_price">
               <div class="price">
-                {{ calcul_price }} DH
+                {{ image.Product_Price }} DH
               </div>
             </div>
             <div class="row my-3 mx-0">
-              <div @click="minus_quantity()" class="quantity-btn col-4"><FAIHoussain :icon="['fas','minus']"/></div>
-              <div class="quantity col-4">{{ quantity }}</div>
-              <div @click="quantity++" class="quantity-btn col-4"><FAIHoussain :icon="['fas','plus']"/></div>
+              <div class="quantity col-12">quantity :: {{ image.Product_Quantity }} in store</div>
             </div>
-              <div class="btn btn-danger" @click="Add_to_Cart()">
+              <div class="btn btn-danger" @click="Add_to_Cart(image)">
                 Add to Cart
             </div>
 
@@ -35,6 +33,7 @@
 <script>
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import axios from "axios";
 export default {
   name: `Product`,
   props: {
@@ -47,27 +46,13 @@ export default {
   data() {
     return {
       quantity:1,
-      product_shop:[],
+      new_price:1,
       image:[],
-      products:[
-        {id:1,name:"nike",category:"Apparel",imageUrl_product:require("../assets/images/product/a.jpeg"),
-          price:10},
-        {id:2,name:"kalve klayn",category:"Home & Kitchen",imageUrl_product:require("../assets/images/product/b.jpg"),
-          price:25},
-        {id:3,name:"jiss",category:"Apparel",imageUrl_product:require("../assets/images/product/c.jpeg"),
-          price:15},
-        {id:4,name:"adidas",category:"Baby & Child",imageUrl_product:require("../assets/images/product/d.jpeg"),
-          price:30},
-        {id:5,name:"kalve klayn",category:"Home & Kitchen",imageUrl_product:require("../assets/images/product/b.jpg"),
-          price:25},
-        {id:6,name:"jiss",category:"Apparel",imageUrl_product:require("../assets/images/product/c.jpeg"),
-          price:15},
-      ],
+      product_shop:[],
     }
   },
   mounted(){
-    this.image.push(this.products.filter((ele)=> ele.id===this.id)[0]);
-    this.image=this.image[0];
+    this.getRvData();
   },
   methods: {
     minus_quantity(){
@@ -76,25 +61,39 @@ export default {
       }else{
         this.quantity=1;}
     },
-    Add_to_Cart(){
+    Add_to_Cart(a){
       // this.product_shop.push(this.image)
-      console.log(this.image.name);
-      console.log(this.image.price);
-    }
+      let mystore=[];
+      mystore=JSON.parse(localStorage.getItem('mystore'))
+      mystore.push(a);
+      localStorage.setItem("mystore", JSON.stringify(mystore));
+      this.$router.push({ name: 'cartpy', path:'/cartpy'});
+      console.log(mystore);
+      console.log(JSON.parse(localStorage.getItem('mystore')).length);
+
+    },
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-product`);
+      const resData=res.data;
+      if (res.status === 200){
+        if (resData.error){
+          console.log(resData.connction_msg);
+        }else {
+          // let a="./assets/images/product/";
+          this.product_shop = resData.table_product.filter((ele)=> ele.Product_id===this.id);
+          // this.table_products = resData.table_product.filter((el)=> el.Product_Image="<img  src='../assets/images/product/"+el.Product_Image+"'  alt='product' width='60'>");
+
+          // this.table_rd=resData.r_v;
+        }
+      }
+    },
+
   }
   ,
   computed: {
-    product: function(){
-      // this.image.push(this.products.filter((ele)=> ele.id===this.id));
-      // console.log(this.image[0].id);
-
-    return this.products.filter((ele)=> ele.id===this.id);
-
-    // console.log(this.$route.params.id);
-    },
-    calcul_price: function(){
-
-      return this.image.price*this.quantity;
+    calcul_pricea: function(){
+      return this.product_shop.Product_Price*this.quantity;
     },
   }
 }

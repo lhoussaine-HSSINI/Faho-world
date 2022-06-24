@@ -4,7 +4,7 @@
     <section class="py-5 px-4 px-sm-0 mx-0 mx-sm-4 text-center bg-white">
       <h6>Leading brands trust faho world</h6>
       <div class="row  justify-content-evenly align-items-center flex-wrap">
-        <div class="col-6 col-sm-4 col-md-2" v-for="image in images" :key="image.id"> <img class="rounded-circle" :src="image.logo_store" width="90" height="90" alt="Puppy with balloons"> </div>
+        <div class="col-6 col-sm-4 col-md-2" v-for="image in images" :key="image.id"> <img class="rounded-circle" :src="'/images/store/'+image.Store_Logo" width="90" height="90" alt="Puppy with balloons"> </div>
       </div>
     </section>
     <section class="section_5 py-5 px-5 px-sm-0 mx-0 mx-sm-4 row justify-content-center align-items-center flex-column ">
@@ -25,6 +25,7 @@
 <script>
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import axios from "axios";
 export default {
   name: `Business`,
   components: {
@@ -33,14 +34,24 @@ export default {
     },
   data() {
     return {
-      images:[
-        {id:1,logo_store:require("../assets/images/alsyf_logo.png")},
-        {id:2,logo_store:require("../assets/images/styli_logo.jpg")},
-        {id:3,logo_store:require("../assets/images/SHEIN_logo.png")},
-        {id:4,logo_store:require("../assets/images/Namshi.png")},
-        {id:5,logo_store:require("../assets/images/Hibobi.jpg")},
-        {id:6,logo_store:require("../assets/images/PatPat.png")},],
+      images:[],
     }
+  }
+  ,
+  mounted() {
+    this.getRvData();
+  },
+  methods: {
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-Store`);
+      const resData=res.data;
+      if (res.status == 200){
+        if (!resData.error){
+          this.images= resData.table_store.filter((el)=> el.id<=7);
+        }
+      }
+    },
   }
 }
 </script>

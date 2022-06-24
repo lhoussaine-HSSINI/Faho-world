@@ -11,13 +11,13 @@
       <div class="row text-center">
         <div  class="col-12 col-sm-6 col-md-3 my-3 d-flex justify-content-center" v-for="image in Apparel" :key="image.id">
           <div class="card">
-            <img :src="image.imageUrl" class="card-img-top" alt="Puppy with balloons">
+            <img :src="'/images/store/'+image.Store_Image" class="card-img-top" alt="Puppy with balloons">
             <div class="btn_show_shop">
-              <a :href="image.lien_store" class="btn btn-dark">show shop</a>
+              <a :href="image.Store_Url" class="btn btn-dark">show shop</a>
             </div>
             <div class="p-1 d-flex justify-content-start align-items-center">
-              <img :src="image.logo_store" width="40" height="40" alt="aaaa" class="rounded-circle">
-              <strong class="mx-1">{{ image.name }}</strong>
+              <img :src="'/images/store/'+image.Store_Logo" width="40" height="40" alt="aaaa" class="rounded-circle">
+              <strong class="mx-1">{{ image.Store_Name }}</strong>
             </div>
           </div>
         </div>
@@ -29,13 +29,13 @@
       <div class="row text-center" >
         <div  class="col-12 col-sm-6 col-md-3 my-3 d-flex justify-content-center" v-for="image in Home_Kitchen" :key="image.id">
           <div class="card">
-            <img :src="image.imageUrl" class="card-img-top" alt="Puppy with balloons">
+            <img :src="'/images/store/'+image.Store_Image" class="card-img-top" alt="Puppy with balloons">
             <div class="btn_show_shop">
-              <a :href="image.lien_store" class="btn btn-dark">show shop</a>
+              <a :href="image.Store_Url" class="btn btn-dark">show shop</a>
             </div>
             <div class="p-1 d-flex justify-content-start align-items-center">
-              <img :src="image.logo_store" width="40" height="40" alt="aaaa" class="rounded-circle">
-              <strong class="mx-1">{{ image.name }}</strong>
+              <img :src="'/images/store/'+image.Store_Logo" width="40" height="40" alt="aaaa" class="rounded-circle">
+              <strong class="mx-1">{{ image.Store_Name }}</strong>
             </div>
           </div>
         </div>
@@ -47,13 +47,13 @@
       <div class="row text-center" >
         <div  class="col-12 col-sm-6 col-md-3 my-3 d-flex justify-content-center" v-for="image in Baby_Child" :key="image.id">
           <div class="card">
-            <img :src="image.imageUrl" class="card-img-top" alt="Puppy with balloons">
+            <img :src="'/images/store/'+image.Store_Image" class="card-img-top" alt="Puppy with balloons">
             <div class="btn_show_shop">
-              <a :href="image.lien_store" class="btn btn-dark">show shop</a>
+              <a :href="image.Store_Url" class="btn btn-dark">show shop</a>
             </div>
             <div class="p-1 d-flex justify-content-start align-items-center">
-              <img :src="image.logo_store" width="40" height="40" alt="aaaa" class="rounded-circle">
-              <strong class="mx-1">{{ image.name }}</strong>
+              <img :src="'/images/store/'+image.Store_Logo" width="40" height="40" alt="aaaa" class="rounded-circle">
+              <strong class="mx-1">{{ image.Store_Name }}</strong>
             </div>
           </div>
         </div>
@@ -67,6 +67,7 @@
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import Featured_Stores_slider from "@/components/Featured_Stores_slider.vue";
+import axios from "axios";
 export default {
   name: `shop`,
   components: {
@@ -76,29 +77,35 @@ export default {
   },
   data() {
     return {
-      shopping:[
-        {id:1,name:"Styli",type_store:"Apparel",imageUrl:require("../assets/images/styli.jpg"),
-          al3ard:10 ,logo_store:require("../assets/images/styli_logo.jpg"), lien_store:"https://bit.ly/3pRP1eT"},
-        {id:2,name:"SHEIN",type_store:"Home & Kitchen",imageUrl:require("../assets/images/SHEIN.jpg"),
-          al3ard:25 ,logo_store:require("../assets/images/SHEIN_logo.png"), lien_store:"https://bit.ly/3oBSXQA"},
-        {id:3,name:"Namshi",type_store:"Apparel",imageUrl:require("../assets/images/Namshi_logo.jpg"),
-          al3ard:15 ,logo_store:require("../assets/images/Namshi.png"), lien_store:"https://bit.ly/3oBzGyD"},
-        {id:4,name:"Hibobi",type_store:"Baby & Child",imageUrl:require("../assets/images/Hibobi_logo.jpg"),
-          al3ard:30 ,logo_store:require("../assets/images/Hibobi.jpg"), lien_store:"https://hibobi.app.link/pCXzCMvB2nb"},
-      ],
+      shopping:[],
     }
   },
   computed: {
     Apparel: function () {
-      return this.shopping.filter((ele)=> ele.type_store==='Apparel');
+      return this.shopping.filter((ele)=> ele.Store_Category==='Apparel');
     },
     Home_Kitchen: function () {
-      return this.shopping.filter((ele)=> ele.type_store==='Home & Kitchen');
+      return this.shopping.filter((ele)=> ele.Store_Category==='Home & Kitchen');
     },
     Baby_Child: function () {
-      return this.shopping.filter((ele)=> ele.type_store==='Baby & Child');
+      return this.shopping.filter((ele)=> ele.Store_Category==='Baby & Child');
     }
   },
+  mounted() {
+    this.getRvData();
+  },
+  methods: {
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-Store`);
+      const resData=res.data;
+      if (res.status == 200){
+        if (!resData.error){
+          this.shopping= resData.table_store;
+        }
+      }
+    },
+  }
 
 }
 </script>

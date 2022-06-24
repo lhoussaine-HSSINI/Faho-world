@@ -54,7 +54,8 @@ export default {
       login_success_errorMsg:'',
       status_login:0,
     }
-  },
+  }
+  ,
   validations: {
     email:{required, email},
     password:{required,minLength:minLength(8)},
@@ -74,6 +75,9 @@ export default {
             if (resData.user_connecter)
             {
               localStorage.setItem("user_connecter", JSON.stringify(resData.user_connecter));
+              localStorage.setItem("user_login", JSON.stringify(true));
+              localStorage.setItem("user_id", JSON.stringify(resData.user_information.id));
+              localStorage.setItem("type_user", JSON.stringify(resData.user_information.Type_User));
               if (resData.user_information.Type_User)
               {
                 this.$router.push({name:'HomeAdmin'});

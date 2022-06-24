@@ -34,7 +34,7 @@
 <!--                '../assets/images/product/a.jpeg'-->
               </td>
               <td>
-                <FAIHoussain :icon="['fas' ,'trash']" class="icon alt btn" @click="selectRv(product);"
+                <FAIHoussain :icon="['fas' ,'trash']" class="icon alt btn" @click="selectproduct_delete(product.Product_id);"
                              data-bs-toggle="modal" data-bs-target="#deleteproduct"/>
                 <FAIHoussain :icon="['fas' ,'edit']" class="icon alt btn " @click="selectRv(product);"
                              data-bs-toggle="modal" data-bs-target="#editproduct"/></td>
@@ -111,14 +111,14 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Information of product</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" id="close-modal_update" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form class="text-start" method="post" @submit.prevent="Add_Product" enctype="multipart/form-data">
+            <form class="text-start" method="post" @submit.prevent="Edit_Product()" enctype="multipart/form-data">
               <div class="form-group mt-3">
                 <label for="Product_name">Name *</label>
                 <input type="text" class="form-control" id="Product_name" aria-describedby="nameHelp" placeholder="Enter  Name"
-                       v-model.trim="current_product.Name">
+                       v-model.trim="Product_name">
                 <span class="error-feedback  text-danger" v-if="v$.Product_name.$error">
                      {{v$.Product_name.$errors[0].$message}}
                 </span>
@@ -126,7 +126,7 @@
               <div class="form-group mt-3">
                 <label for="Product_price">Price *</label>
                 <input type="number" class="form-control" id="Product_price" aria-describedby="Product_priceHelp"
-                       placeholder="Enter price" v-model.trim="current_product.Price" min="20">
+                       placeholder="Enter price" v-model.trim="Product_price" min="20">
                 <span class="error-feedback  text-danger" v-if="v$.Product_price.$error">
                      {{v$.Product_price.$errors[0].$message}}
                 </span>
@@ -134,7 +134,7 @@
               <div class="form-group mt-3">
                 <label for="Product_quantity">Quantity *</label>
                 <input type="number" class="form-control" id="Product_quantity" aria-describedby="QuantityHelp"
-                       placeholder="Enter Quantity" v-model.trim="current_product.Quantity" min="1">
+                       placeholder="Enter Quantity" v-model="Product_quantity" min="1">
                 <span class="error-feedback  text-danger" v-if="v$.Product_quantity.$error">
                      {{v$.Product_quantity.$errors[0].$message}}
                 </span>
@@ -142,7 +142,7 @@
               <div class="form-group mt-3">
                 <label for="Product_entership">name of entership *</label>
                 <input type="text" class="form-control" id="Product_entership" aria-describedby="Product_entershipHelp"
-                       placeholder="Enter date of birth" v-model.trim="current_product.Brand">
+                       placeholder="Enter date of birth" v-model="Product_entership">
                 <span class="error-feedback  text-danger" v-if="v$.Product_entership.$error">
                      {{v$.Product_entership.$errors[0].$message}}
                 </span>
@@ -169,10 +169,10 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Information of product</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" id="close-modal_delete" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form class="text-start" method="post" @submit.prevent="Delete_Product">
+            <form class="text-start" method="post" @submit.prevent="Delete_Product()">
               <h6>delete this product</h6>
               <div class="d-flex justify-content-start mt-3">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -208,9 +208,10 @@ export default {
       Product_price:null,
       Product_quantity:null,
       Product_entership:null,
+      product_id:null,
       file:'',
       current_product:{},
-      table_products:[{id:1, Name:'srwal 9ntri',Brand:'nike',Price:23,Quantity:3,Image:require("../assets/images/product/3.png")}],
+      table_products:[],
     }
   },
   validations: {
@@ -222,6 +223,9 @@ export default {
   },
   mounted(){
     this.getRvData();
+    if(JSON.parse(localStorage.getItem('type_user'))!=1){
+      this.$router.push({path:'/'});
+    }
   }
   ,
   methods: {
@@ -270,6 +274,7 @@ export default {
             const btn = document.querySelector("#close-modal");
             btn.click();
             this.getRvData();
+            this.v$.$reset();
           }
         }
       }else{
@@ -277,37 +282,58 @@ export default {
         console.log(this.v$.$error);
       }
     },
-    Edit_Product(){
+    async Edit_Product(){
       this.v$.$validate();
       if(!this.v$.$error){
-
-        let formData = this.toFormData({Product_id:this.Product_name,Product_name:this.Product_name,Product_price:this.Product_price,
-          Product_quantity:this.Product_quantity,Product_entership:this.Product_entership,
-          Product_image:this.Product_image_update});
-        console.log('true');
-        console.log(formData);
-        // this.axios.post('http://localhost:8000/api.php',
-        //     formData,
-        //     {
-        //       headers: {
-        //         'Content-Type': 'multipart/form-data'
-        //       }
-        //     }
-        // ).then(function(data)
-        // {
-        //   console.log(data.data);
-        // })
-        //     .catch(function()
-        //     {
-        //       console.log('FAILURE!!');
-        //     });
+        let formData = this.toFormData({Product_id:this.product_id,Product_name:this.Product_name,Product_price:this.Product_price,
+          Product_quantity:this.Product_quantity,Product_entership:this.Product_entership, file:this.file});
+        let res= await axios.post(`http://localhost/faho_world/Updateproduct`,formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+        const resData=res.data;
+        if (res.status === 200)
+        {
+          if (!resData.error)
+          {
+            const btn = document.querySelector("#close-modal_update");
+            btn.click();
+            this.getRvData();
+            this.v$.$reset();
+          }
+        }
       }else{
         console.log('error');
         console.log(this.v$.$error);
       }
     },
+    async Delete_Product(){
+      let formData = this.toFormData({Product_id:this.product_id});
+      let res= await axios.post(`http://localhost/faho_world/Deleteproduct`,formData);
+      const resData=res.data;
+      if (res.status === 200)
+      {
+        if (!resData.error)
+        {
+          const btn = document.querySelector("#close-modal_delete");
+          btn.click();
+          this.getRvData();
+          this.v$.$reset();
+        }
+      }
+    },
     selectRv(product){
-      this.current_product=product;
+      this.product_id=product.Product_id;
+      this.Product_name=product.Product_Name;
+      this.Product_price=product.Product_Price;
+      this.Product_quantity=product.Product_Quantity;
+      this.Product_entership=product.Product_Brand;
+      this.file=product.Product_Image;
+    },
+    selectproduct_delete(product){
+      this.product_id=product;
     },
     // end product function
     toFormData(obj){

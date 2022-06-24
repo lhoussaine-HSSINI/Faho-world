@@ -4,15 +4,15 @@
     <section class="container my-3">
       <h3 class="text-start">Apparel</h3>
       <div class="row text-center">
-        <div  class="col-12 col-sm-6 col-md-3 col-l-2 my-3 d-flex justify-content-center" v-for="image in shopping" :key="image.id">
+        <div  class="col-12 col-sm-6 col-md-3 col-l-2 my-3 d-flex justify-content-center" v-for="image in table_products" :key="image.Product_id">
           <div class="card">
-            <img :src="image.imageUrl_product" class="card-img-top" alt="Puppy with balloons">
+            <img :src="'/images/product/' + image.Product_Image" class="card-img-top" alt="Puppy with balloons">
             <div class="btn_show_shop">
-              <router-link :to="{name:'product', params:{ id:image.id } }"  class="btn btn-dark">show</router-link>
+              <router-link :to="{name:'product', params:{ id:image.Product_id} }"  class="btn btn-dark">show</router-link>
             </div>
             <div class="p-1 px-3 d-flex flex-column justify-content-center align-items-start">
-              <p>{{image.name}}</p>
-              <strong>{{ image.price }} DH</strong>
+              <p>{{image.Product_Name}}</p>
+              <strong>{{ image.Product_Price }} DH</strong>
             </div>
           </div>
         </div>
@@ -25,6 +25,7 @@
 <script>
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import axios from "axios";
 export default {
   name: `store`,
   components: {
@@ -33,22 +34,32 @@ export default {
     },
   data() {
     return {
-      shopping:[
-        {id:1,name:"nike",category:"Apparel",imageUrl_product:require("../assets/images/product/a.jpeg"),
-          price:10},
-        {id:2,name:"kalve klayn",category:"Home & Kitchen",imageUrl_product:require("../assets/images/product/b.jpg"),
-          price:25},
-        {id:3,name:"jiss",category:"Apparel",imageUrl_product:require("../assets/images/product/c.jpeg"),
-          price:15},
-        {id:4,name:"adidas",category:"Baby & Child",imageUrl_product:require("../assets/images/product/d.jpeg"),
-          price:30},
-        {id:5,name:"kalve klayn",category:"Home & Kitchen",imageUrl_product:require("../assets/images/product/b.jpg"),
-          price:25},
-        {id:6,name:"jiss",category:"Apparel",imageUrl_product:require("../assets/images/product/c.jpeg"),
-          price:15},
-      ],
+      table_products:[],
+      shopping:[],
     }
   },
+  mounted(){
+    this.getRvData();
+  }
+  ,
+  methods: {
+    // start product function
+    async getRvData(){
+      let res=await axios.get(`http://localhost/faho_world/Read-product`);
+      const resData=res.data;
+      if (res.status === 200){
+        if (resData.error){
+          console.log(resData.connction_msg);
+        }else {
+          // let a="./assets/images/product/";
+          this.table_products = resData.table_product;
+          // this.table_products = resData.table_product.filter((el)=> el.Product_Image="<img  src='../assets/images/product/"+el.Product_Image+"'  alt='product' width='60'>");
+
+          // this.table_rd=resData.r_v;
+        }
+      }
+    },
+  }
 }
 </script>
 
